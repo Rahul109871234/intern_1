@@ -1,0 +1,29 @@
+name: Daily AI News
+
+on:
+  schedule:
+    - cron: "30 2 * * *"   # 02:30 UTC = 08:00 IST
+  workflow_dispatch:        # manual run from the Actions tab
+    inputs:
+      query:
+        description: "Name or topic to search (leave empty for the normal daily digest)"
+        required: false
+        default: ""
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python daily_ai_news.py
+        env:
+          QUERY: ${{ github.event.inputs.query }}
+          WATCHLIST: ${{ vars.WATCHLIST }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
